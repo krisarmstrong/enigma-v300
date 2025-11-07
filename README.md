@@ -2,8 +2,11 @@
 
 > Complete collection of Enigma V300 option key algorithm implementations
 
+[![Test All Implementations](https://github.com/krisarmstrong/enigma-v300/actions/workflows/test-all-implementations.yml/badge.svg)](https://github.com/krisarmstrong/enigma-v300/actions/workflows/test-all-implementations.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![C11](https://img.shields.io/badge/C-11-blue.svg)](https://en.wikipedia.org/wiki/C11_(C_standard_revision))
+[![C++20](https://img.shields.io/badge/C++-20-blue.svg)](https://en.wikipedia.org/wiki/C%2B%2B20)
 
 ## Overview
 
@@ -11,24 +14,36 @@ This repository contains **four complete implementations** of the Fluke option k
 
 ## Quick Start
 
-### Python CLI/SDK (Recommended)
+Each implementation is standalone and produces identical output. Choose based on your language preference:
 
-Install the main Python package:
+**Python (Functional):**
 ```bash
-pip install .
-enigma-v300 --help
-```
-
-Generate a NetTool key:
-```bash
-enigma-v300 -n 0003333016 4
+cd python_functions
+./enigma_v300_functions.py -n 0003333016 4
 # Output: Option Key: 5dab ade1 12dd
 ```
 
-Generate a key for other Fluke products:
+**Python (Object-Oriented):**
 ```bash
-enigma-v300 -e 0000607 7 6963
-# Output: Option Key: 6406 2579 4859 7747
+cd python_classes
+./enigma_v300_classes.py -n 0003333016 4
+# Output: Option Key: 5dab ade1 12dd
+```
+
+**C:**
+```bash
+cd c_implementation
+cmake -S . -B build && cmake --build build
+./build/enigma_v300_pure_c -n 0003333016 4
+# Output: Option Key: 5dab ade1 12dd
+```
+
+**C++:**
+```bash
+cd cpp_implementation
+cmake -S . -B build && cmake --build build
+./build/enigma_v300_pure_cpp -n 0003333016 4
+# Output: Option Key: 5dab ade1 12dd
 ```
 
 ## Available Implementations
@@ -41,37 +56,6 @@ This repository includes **4 standalone implementations** of the Enigma V300 alg
 | **Python Classes** | `python_classes/` | Standalone OOP Python script | OOP enthusiasts, educational purposes |
 | **C** | `c_implementation/` | Pure C11 implementation | Embedded systems, portability, performance |
 | **C++** | `cpp_implementation/` | Modern C++20 implementation | High-performance applications, C++ projects |
-
-### Python Package (Main SDK)
-
-The primary Python package with full CLI and library API support.
-
-**Installation:**
-```bash
-pip install .
-```
-
-**CLI Usage:**
-```bash
-enigma-v300 -n 0003333016 4                    # Generate NetTool key
-enigma-v300 -x 5dabade112dd 0003333016         # Validate NetTool key
-enigma-v300 -e 0000607 7 6963                  # Generate EtherScope key
-enigma-v300 -d 6406257948597747                # Decrypt key
-```
-
-**Library API:**
-```python
-from enigma_v300.core import EnigmaMenu, EnigmaC, Enigma2C
-from enigma_v300 import functions
-
-# Object-oriented approach
-menu = EnigmaMenu()
-menu.calculate_nettool_option_key("0003333016", 4)
-
-# Functional approach
-key = functions.generate_nettool_option_key("0003333016", 4)
-print(f"Key: {functions.format_option_key(key)}")
-```
 
 ### Python Functional Implementation
 
@@ -194,20 +178,43 @@ Expected: 5dab ade1 12dd
 Expected: 6406 2579 4859 7747
 ```
 
-## Development
+## Development & Testing
 
-### Python Development
+### Continuous Integration
 
+All 4 implementations are automatically tested on every push using GitHub Actions. The CI workflow:
+- Tests each implementation independently
+- Verifies all implementations produce identical output
+- Runs C implementation unit tests
+- Validates both test cases (NetTool and EtherScope)
+
+### Running Tests Locally
+
+**Python implementations:**
 ```bash
-python -m venv .venv && source .venv/bin/activate
-pip install -e .[test]
-python -m pytest
-nox -s tests  # Run full CI locally
+# Test Python Functions
+cd python_functions && ./enigma_v300_functions.py -n 0003333016 4
+
+# Test Python Classes
+cd python_classes && ./enigma_v300_classes.py -n 0003333016 4
 ```
 
-### C/C++ Development
+**C implementation:**
+```bash
+cd c_implementation
+cmake -S . -B build -DBUILD_TESTING=ON
+cmake --build build
+ctest --test-dir build --output-on-failure
+```
 
-Each C/C++ implementation has its own build system (CMake) with testing support. See individual README files in `extras/` directories.
+**C++ implementation:**
+```bash
+cd cpp_implementation
+cmake -S . -B build
+cmake --build build
+./build/enigma_v300_pure_cpp -n 0003333016 4
+./build/enigma_v300_pure_cpp -e 0000607 7 6963
+```
 
 ## Project Structure
 
@@ -224,6 +231,7 @@ enigma_v300/
 │   │   ├── main.c
 │   │   ├── enigma_v300_pure_c.c
 │   │   └── enigma_v300_pure_c.h
+│   ├── tests/
 │   ├── CMakeLists.txt
 │   └── README.md
 ├── cpp_implementation/       # C++ implementation
@@ -232,14 +240,10 @@ enigma_v300/
 │   │   └── include/
 │   ├── CMakeLists.txt
 │   └── README.md
-├── src/enigma_v300/          # Optional: Main Python package/SDK
-│   ├── core.py               # Class-based implementation
-│   ├── functions.py          # Functional implementation
-│   ├── cli.py                # Command-line interface
-│   └── __init__.py
-├── tests/                    # Python tests
-├── examples/                 # Example scripts
-├── pyproject.toml            # Python package configuration
+├── .github/
+│   └── workflows/
+│       └── test-all-implementations.yml  # CI/CD pipeline
+├── .gitignore
 └── README.md                 # This file
 ```
 

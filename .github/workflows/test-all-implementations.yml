@@ -1,0 +1,172 @@
+name: Test All Implementations
+
+on:
+  push:
+    branches: ["main"]
+    tags: ["v*"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  test-python-functions:
+    name: Test Python Functional Implementation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Test NetTool key generation
+        run: |
+          cd python_functions
+          python3 enigma_v300_functions.py -n 0003333016 4 > output.txt 2>&1
+          grep -q "5dab ade1 12dd" output.txt
+      - name: Test EtherScope key generation
+        run: |
+          cd python_functions
+          python3 enigma_v300_functions.py -e 0000607 7 6963 > output.txt 2>&1
+          grep -q "6406 2579 4859 7747" output.txt
+
+  test-python-classes:
+    name: Test Python Class-Based Implementation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Test NetTool key generation
+        run: |
+          cd python_classes
+          python3 enigma_v300_classes.py -n 0003333016 4 > output.txt 2>&1
+          grep -q "5dab ade1 12dd" output.txt
+      - name: Test EtherScope key generation
+        run: |
+          cd python_classes
+          python3 enigma_v300_classes.py -e 0000607 7 6963 > output.txt 2>&1
+          grep -q "6406 2579 4859 7747" output.txt
+
+  test-c-implementation:
+    name: Test C Implementation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake build-essential
+      - name: Build C implementation
+        run: |
+          cd c_implementation
+          cmake -S . -B build
+          cmake --build build
+      - name: Test NetTool key generation
+        run: |
+          cd c_implementation
+          ./build/enigma_v300_pure_c -n 0003333016 4 > output.txt 2>&1
+          grep -q "5dab ade1 12dd" output.txt
+      - name: Test EtherScope key generation
+        run: |
+          cd c_implementation
+          ./build/enigma_v300_pure_c -e 0000607 7 6963 > output.txt 2>&1
+          grep -q "6406 2579 4859 7747" output.txt
+      - name: Run C tests
+        run: |
+          cd c_implementation
+          ctest --test-dir build --output-on-failure
+
+  test-cpp-implementation:
+    name: Test C++ Implementation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake build-essential g++-10
+      - name: Build C++ implementation
+        run: |
+          cd cpp_implementation
+          cmake -S . -B build -DCMAKE_CXX_COMPILER=g++-10
+          cmake --build build
+      - name: Test NetTool key generation
+        run: |
+          cd cpp_implementation
+          ./build/enigma_v300_pure_cpp -n 0003333016 4 > output.txt 2>&1
+          grep -q "5dab ade1 12dd" output.txt
+      - name: Test EtherScope key generation
+        run: |
+          cd cpp_implementation
+          ./build/enigma_v300_pure_cpp -e 0000607 7 6963 > output.txt 2>&1
+          grep -q "6406 2579 4859 7747" output.txt
+
+  test-all-produce-same-output:
+    name: Verify All Implementations Produce Identical Output
+    runs-on: ubuntu-latest
+    needs: [test-python-functions, test-python-classes, test-c-implementation, test-cpp-implementation]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake build-essential g++-10
+      - name: Build all implementations
+        run: |
+          cd c_implementation && cmake -S . -B build && cmake --build build && cd ..
+          cd cpp_implementation && cmake -S . -B build -DCMAKE_CXX_COMPILER=g++-10 && cmake --build build && cd ..
+      - name: Generate keys from all implementations
+        run: |
+          # Python Functions
+          cd python_functions
+          python3 enigma_v300_functions.py -n 0003333016 4 2>&1 | grep "Option Key" > ../pyfunc_nettool.txt
+          python3 enigma_v300_functions.py -e 0000607 7 6963 2>&1 | grep "Option Key" > ../pyfunc_escope.txt
+          cd ..
+
+          # Python Classes
+          cd python_classes
+          python3 enigma_v300_classes.py -n 0003333016 4 2>&1 | grep "Option Key" > ../pyclass_nettool.txt
+          python3 enigma_v300_classes.py -e 0000607 7 6963 2>&1 | grep "Option Key" > ../pyclass_escope.txt
+          cd ..
+
+          # C
+          cd c_implementation
+          ./build/enigma_v300_pure_c -n 0003333016 4 2>&1 | grep "Option Key" > ../c_nettool.txt
+          ./build/enigma_v300_pure_c -e 0000607 7 6963 2>&1 | grep "Option Key" > ../c_escope.txt
+          cd ..
+
+          # C++
+          cd cpp_implementation
+          ./build/enigma_v300_pure_cpp -n 0003333016 4 2>&1 | grep "Option Key" > ../cpp_nettool.txt
+          ./build/enigma_v300_pure_cpp -e 0000607 7 6963 2>&1 | grep "Option Key" > ../cpp_escope.txt
+          cd ..
+      - name: Verify all NetTool outputs match
+        run: |
+          # Extract just the key part (remove timestamps and log prefixes)
+          sed 's/.*Option Key: //' pyfunc_nettool.txt > pyfunc_key.txt
+          sed 's/.*Option Key: //' pyclass_nettool.txt > pyclass_key.txt
+          sed 's/.*Option Key: //' c_nettool.txt > c_key.txt
+          sed 's/.*Option Key: //' cpp_nettool.txt > cpp_key.txt
+
+          # Compare all outputs
+          diff pyfunc_key.txt pyclass_key.txt
+          diff pyfunc_key.txt c_key.txt
+          diff pyfunc_key.txt cpp_key.txt
+
+          echo "✅ All implementations produce identical NetTool output"
+      - name: Verify all EtherScope outputs match
+        run: |
+          # Extract just the key part
+          sed 's/.*Option Key: //' pyfunc_escope.txt > pyfunc_key2.txt
+          sed 's/.*Option Key: //' pyclass_escope.txt > pyclass_key2.txt
+          sed 's/.*Option Key: //' c_escope.txt > c_key2.txt
+          sed 's/.*Option Key: //' cpp_escope.txt > cpp_key2.txt
+
+          # Compare all outputs
+          diff pyfunc_key2.txt pyclass_key2.txt
+          diff pyfunc_key2.txt c_key2.txt
+          diff pyfunc_key2.txt cpp_key2.txt
+
+          echo "✅ All implementations produce identical EtherScope output"
