@@ -278,3 +278,20 @@ Kris Armstrong
 ## Contributing
 
 Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+### Reporting Issues
+
+Found a bug or have a feature request? Please use our [issue templates](.github/ISSUE_TEMPLATE/):
+- [Bug Report](.github/ISSUE_TEMPLATE/bug_report.md)
+- [Feature Request](.github/ISSUE_TEMPLATE/feature_request.md)
+
+### Submitting Pull Requests
+
+Please read our [Pull Request template](.github/pull_request_template.md) and ensure:
+- All 4 implementations remain consistent
+- Tests pass locally and in CI/CD
+- Documentation is updated
+
+## Repository Topics
+
+`fluke` `nettool` `option-keys` `encryption` `enigma` `python` `c` `cpp` `cryptography` `network-testing` `ci-cd` `github-actions`
