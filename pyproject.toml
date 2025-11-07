@@ -1,0 +1,58 @@
+[project]
+name = "enigma-v300"
+description = "Unified CLI/SDK for Fluke/NetAlly Enigma V300 option key generation."
+authors = [
+    { name = "Kris Armstrong", email = "kris.armstrong@example.com" }
+]
+readme = "README.md"
+requires-python = ">=3.14"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Telecommunications Industry",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Security :: Cryptography",
+]
+dependencies = []
+
+dynamic = ["version"]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=8.3",
+    "coverage[toml]>=7.4",
+]
+dev = [
+    "nox>=2024.4.15",
+]
+
+[project.urls]
+Homepage = "https://github.com/krisarmstrong/enigma-v300"
+"Bug Tracker" = "https://github.com/krisarmstrong/enigma-v300/issues"
+
+[project.scripts]
+enigma-v300 = "enigma_v300.cli:main"
+
+[build-system]
+requires = ["setuptools>=68", "setuptools_scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools_scm]
+version_file = "src/enigma_v300/_version.py"
+fallback_version = "0.0.0"
+
+[tool.pytest.ini_options]
+addopts = "-ra --showlocals"
+testpaths = ["enigma_v300/tests"]
+
+[tool.coverage.run]
+source = ["enigma_v300"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
