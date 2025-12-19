@@ -1,4 +1,6 @@
 # Enigma V300 - Fluke Option Key Calculator
+[![Checks](https://github.com/krisarmstrong/enigma-v300/actions/workflows/checks.yml/badge.svg)](https://github.com/krisarmstrong/enigma-v300/actions/workflows/checks.yml)
+
 
 > Complete collection of Enigma V300 option key algorithm implementations
 
@@ -295,3 +297,12 @@ Please read our [Pull Request template](.github/pull_request_template.md) and en
 ## Repository Topics
 
 `fluke` `nettool` `option-keys` `encryption` `enigma` `python` `c` `cpp` `cryptography` `network-testing` `ci-cd` `github-actions`
+
+## Development
+
+Run the full local checks:
+
+```bash
+./check.sh
+```
+
