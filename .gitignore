@@ -57,3 +57,10 @@ Makefile
 
 # Logs
 *.log
+
+# Tooling defaults
+.env
+.env.*
+.mypy_cache/
+.ruff_cache/
+coverage.xml

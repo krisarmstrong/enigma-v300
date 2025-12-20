@@ -10,13 +10,42 @@ Enigma2C (other Fluke products, 7-digit serial), and EnigmaMenu for user interac
 Author: Kris Armstrong
 """
 
-import sys
 import argparse
 import logging
 import logging.handlers
-from typing import List, Dict, Tuple, Optional
+import sys
+from importlib.metadata import PackageNotFoundError, version as _pkg_version
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple
 
-__version__ = "3.0.1"
+def _find_pyproject(start: Path) -> Path | None:
+    for parent in (start, *start.parents):
+        candidate = parent / "pyproject.toml"
+        if candidate.is_file():
+            return candidate
+    return None
+
+
+def _read_pyproject_version() -> str:
+    try:
+        import tomllib  # Python 3.11+
+    except ModuleNotFoundError:
+        return "0.0.0"
+
+    pyproject = _find_pyproject(Path(__file__).resolve())
+    if not pyproject:
+        return "0.0.0"
+    try:
+        data = tomllib.loads(pyproject.read_text())
+    except Exception:
+        return "0.0.0"
+    return data.get("project", {}).get("version", "0.0.0")
+
+
+try:
+    __version__ = _pkg_version("enigma-v300")
+except PackageNotFoundError:
+    __version__ = _read_pyproject_version()
 
 # Configure logging
 logger = logging.getLogger(__name__)
