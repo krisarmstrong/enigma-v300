@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "enigma-v300"
-version = "3.0.2"
+version = "0.1.0"
 description = "Automation tooling for enigma-v300."
 readme = "README.md"
 requires-python = ">=3.11"
