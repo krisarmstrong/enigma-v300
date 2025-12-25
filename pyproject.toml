@@ -7,7 +7,7 @@ name = "enigma-v300"
 version = "3.0.2"
 description = "Automation tooling for enigma-v300."
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.14"
 license = { file = "LICENSE" }
 authors = [
   { name = "Kris Armstrong" }
