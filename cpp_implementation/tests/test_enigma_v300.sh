@@ -116,7 +116,19 @@ OUTPUT=$("$ENIGMA" -e 1234567 0 6963 2>&1)
 check_output "Option 000 works" "Option Key:" "$OUTPUT"
 
 echo ""
-echo -e "${YELLOW}NOTE${NC}: C++ CLI missing vs C: --version, --list-products, --list-options"
+echo "--- Version/List Tests ---"
+VERSION_OUTPUT=$("$ENIGMA" --version 2>&1 || true)
+check_output "Version contains 3.0.0" "3.0.0" "$VERSION_OUTPUT"
+
+PRODUCTS_OUTPUT=$("$ENIGMA" --list-products 2>&1 || true)
+check_output "List shows NetTool Series II" "NetTool Series II" "$PRODUCTS_OUTPUT"
+check_output "List shows EtherScope" "EtherScope" "$PRODUCTS_OUTPUT"
+check_output "List shows LinkRunner" "LinkRunner" "$PRODUCTS_OUTPUT"
+
+OPTIONS_OUTPUT=$("$ENIGMA" --list-options 6964 2>&1 || true)
+check_output "OneTouch options include Wired" "Wired" "$OPTIONS_OUTPUT"
+check_output "OneTouch options include Wi-Fi" "Wi-Fi" "$OPTIONS_OUTPUT"
+
 echo ""
 echo "=== Test Summary ==="
 echo -e "Passed: ${GREEN}${PASSED}${NC}"

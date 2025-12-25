@@ -1,7 +1,7 @@
 // File: enigma_v300_pure_c.c
 // Author: Kris Armstrong
 // Version: 3.0.0
-// Last Modified: 2025-04-12
+// Last Modified: 2025-12-25
 // Description: C11 implementation of Fluke option key calculator with enhanced menu.
 // License: MIT
 
@@ -788,6 +788,7 @@ int run_enigma_cli(int argc, char* argv[])
         {
             selection = 3;
             product_code = 7001;
+            assume_escope = 1;  /* Skip product menu when all args provided */
         }
         else if (strcmp(argv[1], "-d") == 0)
         {

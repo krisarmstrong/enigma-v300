@@ -688,12 +688,43 @@ def main() -> None:
     )
     parser.add_argument("--verbose", action="store_true", help="Enable debug logging")
     parser.add_argument("--logfile", help="Log to file (rotates at 10MB)")
+    parser.add_argument(
+        "-V", "--version", action="store_true", help="Show version information"
+    )
+    parser.add_argument(
+        "--list-products", action="store_true", help="List known product codes"
+    )
+    parser.add_argument(
+        "--list-options", metavar="CODE", help="List options for a product code"
+    )
 
     args = parser.parse_args()
     setup_logging(args.verbose, args.logfile)
 
     try:
-        if args.nettool:
+        if args.version:
+            print(f"Enigma {SOFTWARE_VERSION} - Fluke option key utility")
+            sys.exit(0)
+        elif args.list_products:
+            print("Known Product Codes:")
+            for product in PRODUCT_TABLE:
+                print(f"  {product['code']} - {product['name']}")
+            sys.exit(0)
+        elif args.list_options:
+            options = PRODUCT_OPTIONS.get(args.list_options)
+            if options:
+                product_name = next(
+                    (p["name"] for p in PRODUCT_TABLE if p["code"] == args.list_options),
+                    "Unknown",
+                )
+                print(f"Options for {args.list_options} ({product_name}):")
+                for code, desc in sorted(options.items()):
+                    print(f"  {code} - {desc}")
+            else:
+                print(f"No options defined for product code {args.list_options}")
+                sys.exit(1)
+            sys.exit(0)
+        elif args.nettool:
             serial, option = args.nettool
             calculate_nettool_option_key(serial, int(option))
         elif args.check_nettool:

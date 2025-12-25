@@ -318,6 +318,8 @@ class Enigma2C:
 class EnigmaMenu:
     """Handle menu interactions for Fluke option key calculator."""
 
+    SOFTWARE_VERSION: str = "3.0.0"
+
     PRODUCT_TABLE: list[dict[str, str]] = [
         {"code": "3001", "abbr": "NTs2", "name": "NetTool Series II"},
         {"code": "7001", "abbr": "LRPro", "name": "LinkRunner Pro Duo"},
@@ -708,15 +710,53 @@ def main() -> None:
     parser.add_argument(
         "-d", "--decrypt", metavar="KEY", help="Decrypt option key for other products (16-char key)"
     )
+    parser.add_argument(
+        "-l",
+        "--linkrunner",
+        nargs=2,
+        metavar=("SERIAL", "OPTION"),
+        help="Generate LinkRunner Pro option key (7-digit serial, option number)",
+    )
     parser.add_argument("--verbose", action="store_true", help="Enable debug logging")
     parser.add_argument("--logfile", help="Log to file (rotates at 10MB)")
+    parser.add_argument(
+        "-V", "--version", action="store_true", help="Show version information"
+    )
+    parser.add_argument(
+        "--list-products", action="store_true", help="List known product codes"
+    )
+    parser.add_argument(
+        "--list-options", metavar="CODE", help="List options for a product code"
+    )
 
     args = parser.parse_args()
     setup_logging(args.verbose, args.logfile)
 
     menu = EnigmaMenu()
     try:
-        if args.nettool:
+        if args.version:
+            print(f"Enigma {EnigmaMenu.SOFTWARE_VERSION} - Fluke option key utility")
+            sys.exit(0)
+        elif args.list_products:
+            print("Known Product Codes:")
+            for product in EnigmaMenu.PRODUCT_TABLE:
+                print(f"  {product['code']} - {product['name']}")
+            sys.exit(0)
+        elif args.list_options:
+            options = EnigmaMenu.PRODUCT_OPTIONS.get(args.list_options)
+            if options:
+                product_name = next(
+                    (p["name"] for p in EnigmaMenu.PRODUCT_TABLE if p["code"] == args.list_options),
+                    "Unknown",
+                )
+                print(f"Options for {args.list_options} ({product_name}):")
+                for code, desc in sorted(options.items()):
+                    print(f"  {code} - {desc}")
+            else:
+                print(f"No options defined for product code {args.list_options}")
+                sys.exit(1)
+            sys.exit(0)
+        elif args.nettool:
             serial, option = args.nettool
             menu.calculate_nettool_option_key(serial, int(option))
         elif args.check_nettool:
@@ -727,6 +767,10 @@ def main() -> None:
             menu.calculate_enigma2_option_key(serial, int(option), int(product), False)
         elif args.decrypt:
             menu.check_enigma2_option_key(args.decrypt)
+        elif args.linkrunner:
+            serial, option = args.linkrunner
+            # LinkRunner Pro uses product code 7001
+            menu.calculate_enigma2_option_key(serial, int(option), 7001, False)
         else:
             while menu.main_menu():
                 pass

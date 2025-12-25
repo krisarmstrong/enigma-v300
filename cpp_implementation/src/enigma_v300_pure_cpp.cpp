@@ -1,8 +1,8 @@
 // File: enigma_v300_pure_cpp.cpp
 // Author: Kris Armstrong
 // Version: 3.0.0
-// Last Modified: 2025-04-12
-// Description: C++17 implementation of Fluke option key calculator with enhanced menu.
+// Last Modified: 2025-12-25
+// Description: C++20 implementation of Fluke option key calculator with enhanced menu.
 // License: MIT
 
 #include <iostream>
@@ -644,6 +644,65 @@ bool main_menu()
     }
 }
 
+void print_help(const char* prog_name)
+{
+    std::cout << "Enigma " << SOFTWARE_VERSION << " - Fluke option key utility\n"
+        << "Usage:\n"
+        << "  " << prog_name << " [mode] [args...]\n\n"
+        << "Modes:\n"
+        << "  -n SERIAL OPTION        Generate NetTool option key\n"
+        << "  -x OPTION_KEY           Check NetTool option key\n"
+        << "  -e SERIAL [OPTION [PRODUCT]]  Generate EtherScope/MetroScope option key\n"
+        << "  -l SERIAL OPTION        Generate LinkRunner Pro option key\n"
+        << "  -d OPTION_KEY           Decrypt EtherScope/MetroScope option key\n\n"
+        << "Utility flags:\n"
+        << "  -h, --help, -?          Show this help text\n"
+        << "  -V, --version           Show version information\n"
+        << "  --list-products         List known product codes\n"
+        << "  --list-options CODE     List options for a product code\n\n"
+        << "Run without arguments to launch the interactive menu.\n";
+}
+
+void print_version()
+{
+    std::cout << "Enigma " << SOFTWARE_VERSION << " - Fluke option key utility\n";
+}
+
+void list_products()
+{
+    std::cout << "Known Product Codes:\n";
+    for (const auto& product : PRODUCT_TABLE)
+    {
+        std::cout << "  " << product.code << " - " << product.name << "\n";
+    }
+}
+
+void list_options(const std::string& product_code)
+{
+    for (const auto& po : PRODUCT_OPTIONS)
+    {
+        if (po.product_code == product_code)
+        {
+            std::string product_name = "Unknown";
+            for (const auto& p : PRODUCT_TABLE)
+            {
+                if (p.code == product_code)
+                {
+                    product_name = p.name;
+                    break;
+                }
+            }
+            std::cout << "Options for " << product_code << " (" << product_name << "):\n";
+            for (const auto& opt : po.options)
+            {
+                std::cout << "  " << opt.code << " - " << opt.desc << "\n";
+            }
+            return;
+        }
+    }
+    std::cerr << "No options defined for product code " << product_code << "\n";
+}
+
 int main(int argc, char* argv[])
 {
     std::string serial_number;
@@ -655,18 +714,45 @@ int main(int argc, char* argv[])
 
     if (argc > 1)
     {
-        std::string arg1(argv[1]); // Explicit constructor to suppress warning
-        if (arg1 == "?" || arg1 == "-?")
+        std::string arg1(argv[1]);
+
+        // Help flags
+        if (arg1 == "?" || arg1 == "-?" || arg1 == "-h" || arg1 == "--help")
         {
-            std::cout << "usage: " << argv[0] << " [-d|-e|-l|-n|-x] [optionKey|serialNo] [optionNo] [productCode]\n"
-                << "where,\n"
-                << "-d is decrypt EtherScope option key\n"
-                << "-e is encrypt EtherScope option key\n"
-                << "-l is encrypt LinkRunner Pro option key\n"
-                << "-n is calculate NetTool option key\n"
-                << "-x is check NetTool option key\n";
-            return 1;
+            print_help(argv[0]);
+            return 0;
         }
+
+        // Version flag
+        if (arg1 == "-V" || arg1 == "--version")
+        {
+            print_version();
+            return 0;
+        }
+
+        // List products
+        if (arg1 == "--list-products")
+        {
+            list_products();
+            return 0;
+        }
+
+        // List options
+        if (arg1 == "--list-options")
+        {
+            if (argc > 2)
+            {
+                list_options(argv[2]);
+                return 0;
+            }
+            else
+            {
+                std::cerr << "Error: --list-options requires a product code\n";
+                return 1;
+            }
+        }
+
+        // Mode flags
         if (arg1 == "-n")
         {
             selection = 1;
@@ -684,7 +770,8 @@ int main(int argc, char* argv[])
         else if (arg1 == "-l")
         {
             selection = 3;
-            product_code = 7001;
+            product_code = 7001;  // LinkRunner Pro
+            assume_escope = true;  // Skip product menu when all args provided
         }
         else if (arg1 == "-d")
         {
@@ -692,7 +779,17 @@ int main(int argc, char* argv[])
         }
         else
         {
-            selection = std::stoi(arg1);
+            // Try to parse as number for interactive menu selection
+            try
+            {
+                selection = std::stoi(arg1);
+            }
+            catch (const std::exception&)
+            {
+                std::cerr << "Unknown option: " << arg1 << "\n";
+                print_help(argv[0]);
+                return 1;
+            }
         }
 
         if (argc > 2)

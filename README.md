@@ -20,15 +20,13 @@ Each implementation is standalone and produces identical output. Choose based on
 
 **Python (Functional):**
 ```bash
-cd python_functions
-./enigma_v300_functions.py -n 0003333016 4
+python python/enigma_v300_functions.py -n 0003333016 4
 # Output: Option Key: 5dab ade1 12dd
 ```
 
 **Python (Object-Oriented):**
 ```bash
-cd python_classes
-./enigma_v300_classes.py -n 0003333016 4
+python python/enigma_v300_classes.py -n 0003333016 4
 # Output: Option Key: 5dab ade1 12dd
 ```
 
@@ -54,8 +52,8 @@ This repository includes **4 standalone implementations** of the Enigma V300 alg
 
 | Implementation | Location | Description | Best For |
 |----------------|----------|-------------|----------|
-| **Python Functions** | `python_functions/` | Standalone functional Python script | Functional programming enthusiasts, simple scripts |
-| **Python Classes** | `python_classes/` | Standalone OOP Python script | OOP enthusiasts, educational purposes |
+| **Python Functions** | `python/enigma_v300_functions.py` | Standalone functional Python script | Functional programming enthusiasts, simple scripts |
+| **Python Classes** | `python/enigma_v300_classes.py` | Standalone OOP Python script | OOP enthusiasts, educational purposes |
 | **C** | `c_implementation/` | Pure C11 implementation | Embedded systems, portability, performance |
 | **C++** | `cpp_implementation/` | Modern C++20 implementation | High-performance applications, C++ projects |
 
@@ -63,29 +61,23 @@ This repository includes **4 standalone implementations** of the Enigma V300 alg
 
 Standalone script using pure functions (no classes).
 
-**Location:** `python_functions/`
+**Location:** `python/enigma_v300_functions.py`
 
 **Usage:**
 ```bash
-cd python_functions
-./enigma_v300_functions.py -n 0003333016 4
+python python/enigma_v300_functions.py -n 0003333016 4
 ```
-
-See [python_functions/README.md](python_functions/README.md) for details.
 
 ### Python Class-Based Implementation
 
 Standalone script using object-oriented programming.
 
-**Location:** `python_classes/`
+**Location:** `python/enigma_v300_classes.py`
 
 **Usage:**
 ```bash
-cd python_classes
-./enigma_v300_classes.py -n 0003333016 4
+python python/enigma_v300_classes.py -n 0003333016 4
 ```
-
-See [python_classes/README.md](python_classes/README.md) for details.
 
 ### C Implementation
 
@@ -145,14 +137,22 @@ See [cpp_implementation/README.md](cpp_implementation/README.md) for details.
 
 All implementations support these commands:
 
+**Key Generation:**
 - `-n / --nettool SERIAL OPTION` - Generate NetTool keys (10-digit serial, numeric option)
-- `-x / --check-nettool KEY SERIAL` - Validate a NetTool key
 - `-e / --encrypt SERIAL OPTION PRODUCT` - Create keys for other products (7-digit serial, 3-digit option, product code)
-- `-d / --decrypt KEY` - Decode a key and print the embedded serial/option/product information
-- `-h / --help` - Display help information
-- `-V / --version` - Display version information
+- `-l / --linkrunner SERIAL OPTION` - Generate LinkRunner Pro keys (7-digit serial, option)
 
-Python implementations also support:
+**Key Validation:**
+- `-x / --check-nettool KEY SERIAL` - Validate a NetTool key
+- `-d / --decrypt KEY` - Decode a key and print the embedded serial/option/product information
+
+**Utility:**
+- `-h / --help / -?` - Display help information
+- `-V / --version` - Display version information
+- `--list-products` - List all known product codes
+- `--list-options CODE` - List available options for a product code
+
+**Python-only options:**
 - `--verbose` - Enable debug logging
 - `--logfile FILE` - Log to file (rotates at 10MB)
 
@@ -194,11 +194,14 @@ All 4 implementations are automatically tested on every push using GitHub Action
 
 **Python implementations:**
 ```bash
-# Test Python Functions
-cd python_functions && ./enigma_v300_functions.py -n 0003333016 4
+# Run pytest suite
+pytest tests/test_enigma_v300.py -v
 
-# Test Python Classes
-cd python_classes && ./enigma_v300_classes.py -n 0003333016 4
+# Test Python Functions directly
+python python/enigma_v300_functions.py -n 0003333016 4
+
+# Test Python Classes directly
+python python/enigma_v300_classes.py -n 0003333016 4
 ```
 
 **C implementation:**
@@ -221,32 +224,31 @@ cmake --build build
 ## Project Structure
 
 ```
-enigma_v300/
-├── python_functions/         # Standalone Python functional script
-│   ├── enigma_v300_functions.py
-│   └── README.md
-├── python_classes/           # Standalone Python OOP script
-│   ├── enigma_v300_classes.py
-│   └── README.md
-├── c_implementation/         # C implementation
+enigma-v300/
+├── python/                   # Python implementations
+│   ├── enigma_v300_functions.py  # Functional style
+│   └── enigma_v300_classes.py    # OOP style
+├── c_implementation/         # C11 implementation
 │   ├── src/
-│   │   ├── main.c
-│   │   ├── enigma_v300_pure_c.c
-│   │   └── enigma_v300_pure_c.h
+│   │   └── enigma_v300_pure_c.c
 │   ├── tests/
+│   │   └── test_enigma_v300.sh
 │   ├── CMakeLists.txt
 │   └── README.md
-├── cpp_implementation/       # C++ implementation
+├── cpp_implementation/       # C++20 implementation
 │   ├── src/
-│   │   ├── enigma_v300_pure_cpp.cpp
-│   │   └── include/
+│   │   └── enigma_v300_pure_cpp.cpp
+│   ├── tests/
+│   │   └── test_enigma_v300.sh
 │   ├── CMakeLists.txt
 │   └── README.md
+├── tests/                    # Python pytest suite
+│   └── test_enigma_v300.py
 ├── .github/
-│   └── workflows/
-│       └── test-all-implementations.yml  # CI/CD pipeline
-├── .gitignore
-└── README.md                 # This file
+│   └── workflows/            # CI/CD pipelines
+├── pyproject.toml            # Python project config
+├── CHANGELOG.md
+└── README.md
 ```
 
 ## Algorithms
