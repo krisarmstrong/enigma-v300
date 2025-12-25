@@ -32,7 +32,7 @@ python python/enigma_v300_classes.py -n 0003333016 4
 
 **C:**
 ```bash
-cd c_implementation
+cd c
 cmake -S . -B build && cmake --build build
 ./build/enigma_v300_pure_c -n 0003333016 4
 # Output: Option Key: 5dab ade1 12dd
@@ -40,7 +40,7 @@ cmake -S . -B build && cmake --build build
 
 **C++:**
 ```bash
-cd cpp_implementation
+cd cpp
 cmake -S . -B build && cmake --build build
 ./build/enigma_v300_pure_cpp -n 0003333016 4
 # Output: Option Key: 5dab ade1 12dd
@@ -54,8 +54,8 @@ This repository includes **4 standalone implementations** of the Enigma V300 alg
 |----------------|----------|-------------|----------|
 | **Python Functions** | `python/enigma_v300_functions.py` | Standalone functional Python script | Functional programming enthusiasts, simple scripts |
 | **Python Classes** | `python/enigma_v300_classes.py` | Standalone OOP Python script | OOP enthusiasts, educational purposes |
-| **C** | `c_implementation/` | Pure C11 implementation | Embedded systems, portability, performance |
-| **C++** | `cpp_implementation/` | Modern C++20 implementation | High-performance applications, C++ projects |
+| **C** | `c/` | Pure C11 implementation | Embedded systems, portability, performance |
+| **C++** | `cpp/` | Modern C++20 implementation | High-performance applications, C++ projects |
 
 ### Python Functional Implementation
 
@@ -83,11 +83,11 @@ python python/enigma_v300_classes.py -n 0003333016 4
 
 Pure C11 implementation for maximum portability and performance.
 
-**Location:** `c_implementation/`
+**Location:** `c/`
 
 **Build:**
 ```bash
-cd c_implementation
+cd c
 cmake -S . -B build
 cmake --build build
 ```
@@ -99,22 +99,22 @@ cmake --build build
 
 **Quick compile:**
 ```bash
-cd c_implementation
+cd c
 gcc -std=c11 src/main.c src/enigma_v300_pure_c.c -o enigma
 ./enigma -n 0003333016 4
 ```
 
-See [c_implementation/README.md](c_implementation/README.md) for details.
+See [c/README.md](c/README.md) for details.
 
 ### C++ Implementation
 
 Modern C++20 implementation with namespaces and STL.
 
-**Location:** `cpp_implementation/`
+**Location:** `cpp/`
 
 **Build:**
 ```bash
-cd cpp_implementation
+cd cpp
 cmake -S . -B build
 cmake --build build
 ```
@@ -126,12 +126,12 @@ cmake --build build
 
 **Quick compile:**
 ```bash
-cd cpp_implementation
+cd cpp
 g++ -std=c++20 src/enigma_v300_pure_cpp.cpp -o enigma
 ./enigma -n 0003333016 4
 ```
 
-See [cpp_implementation/README.md](cpp_implementation/README.md) for details.
+See [cpp/README.md](cpp/README.md) for details.
 
 ## Commands Reference
 
@@ -206,7 +206,7 @@ python python/enigma_v300_classes.py -n 0003333016 4
 
 **C implementation:**
 ```bash
-cd c_implementation
+cd c
 cmake -S . -B build -DBUILD_TESTING=ON
 cmake --build build
 ctest --test-dir build --output-on-failure
@@ -214,7 +214,7 @@ ctest --test-dir build --output-on-failure
 
 **C++ implementation:**
 ```bash
-cd cpp_implementation
+cd cpp
 cmake -S . -B build
 cmake --build build
 ./build/enigma_v300_pure_cpp -n 0003333016 4
@@ -226,27 +226,20 @@ cmake --build build
 ```
 enigma-v300/
 ├── python/                   # Python implementations
-│   ├── enigma_v300_functions.py  # Functional style
-│   └── enigma_v300_classes.py    # OOP style
-├── c_implementation/         # C11 implementation
-│   ├── src/
-│   │   └── enigma_v300_pure_c.c
 │   ├── tests/
-│   │   └── test_enigma_v300.sh
-│   ├── CMakeLists.txt
-│   └── README.md
-├── cpp_implementation/       # C++20 implementation
+│   │   └── test_enigma_v300.py
+│   ├── enigma_v300_functions.py
+│   └── enigma_v300_classes.py
+├── c/                        # C11 implementation
 │   ├── src/
-│   │   └── enigma_v300_pure_cpp.cpp
 │   ├── tests/
-│   │   └── test_enigma_v300.sh
-│   ├── CMakeLists.txt
-│   └── README.md
-├── tests/                    # Python pytest suite
-│   └── test_enigma_v300.py
-├── .github/
-│   └── workflows/            # CI/CD pipelines
-├── pyproject.toml            # Python project config
+│   └── CMakeLists.txt
+├── cpp/                      # C++20 implementation
+│   ├── src/
+│   ├── tests/
+│   └── CMakeLists.txt
+├── .github/                  # CI/CD pipelines
+├── pyproject.toml
 ├── CHANGELOG.md
 └── README.md
 ```

@@ -25,7 +25,8 @@ dev = [
 [tool.pytest.ini_options]
 minversion = "8.0"
 addopts = "--maxfail=1 --disable-warnings"
-pythonpath = ["src"]
+pythonpath = ["python"]
+testpaths = ["python/tests"]
 
 [tool.ruff]
 line-length = 100
