@@ -12,7 +12,7 @@ jobs:
     name: Test Python Functional Implementation
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions/setup-python@v5
         with:
           python-version: "3.14"
@@ -31,7 +31,7 @@ jobs:
     name: Test Python Class-Based Implementation
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions/setup-python@v5
         with:
           python-version: "3.14"
@@ -50,7 +50,7 @@ jobs:
     name: Test C Implementation
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Install build tools
         run: |
           sudo apt-get update
@@ -79,7 +79,7 @@ jobs:
     name: Test C++ Implementation
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Install build tools
         run: |
           sudo apt-get update
@@ -105,7 +105,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [test-python-functions, test-python-classes, test-c-implementation, test-cpp-implementation]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions/setup-python@v5
         with:
           python-version: "3.14"
