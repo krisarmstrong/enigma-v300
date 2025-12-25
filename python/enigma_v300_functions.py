@@ -601,15 +601,12 @@ def check_enigma2_option_key(option_key: str) -> None:
         raise ValueError("Decryption failed: invalid checksum")
 
     product_code = decrypted_key[PRODUCT_LOCATION : PRODUCT_LOCATION + PRODUCT_CODE_SIZE]
-    logger.info(f"Product Code: {product_code} -> ", end="")
-    found = False
+    product_name = "Unknown"
     for product in PRODUCT_TABLE:
         if product_code == product["code"]:
-            logger.info(product["name"])
-            found = True
+            product_name = product["name"]
             break
-    if not found:
-        logger.info("Unknown")
+    logger.info(f"Product Code: {product_code} -> {product_name}")
     logger.info(
         f"SerialNumber: {decrypted_key[SERIAL_LOCATION : SERIAL_LOCATION + SERIAL_NUMBER_SIZE_ENIGMA2]}"
     )

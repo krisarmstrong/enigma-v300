@@ -631,15 +631,12 @@ class EnigmaMenu:
             self.enigma2_c.PRODUCT_LOCATION : self.enigma2_c.PRODUCT_LOCATION
             + self.enigma2_c.PRODUCT_CODE_SIZE
         ]
-        logger.info(f"Product Code: {product_code} -> ", end="")
-        found = False
+        product_name = "Unknown"
         for product in self.PRODUCT_TABLE:
             if product_code == product["code"]:
-                logger.info(product["name"])
-                found = True
+                product_name = product["name"]
                 break
-        if not found:
-            logger.info("Unknown")
+        logger.info(f"Product Code: {product_code} -> {product_name}")
         logger.info(
             f"SerialNumber: {decrypted_key[self.enigma2_c.SERIAL_LOCATION : self.enigma2_c.SERIAL_LOCATION + self.enigma2_c.SERIAL_NUMBER_SIZE_ENIGMA2]}"
         )
