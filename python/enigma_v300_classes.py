@@ -14,9 +14,10 @@ import argparse
 import logging
 import logging.handlers
 import sys
-from importlib.metadata import PackageNotFoundError, version as _pkg_version
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import version as _pkg_version
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+
 
 def _find_pyproject(start: Path) -> Path | None:
     for parent in (start, *start.parents):
@@ -50,10 +51,11 @@ except PackageNotFoundError:
 # Configure logging
 logger = logging.getLogger(__name__)
 
-def setup_logging(verbose: bool, logfile: Optional[str] = None) -> None:
+
+def setup_logging(verbose: bool, logfile: str | None = None) -> None:
     """Configure logging with console and optional file handlers."""
     level = logging.DEBUG if verbose else logging.INFO
-    formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s')
+    formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
 
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(formatter)
@@ -62,17 +64,18 @@ def setup_logging(verbose: bool, logfile: Optional[str] = None) -> None:
 
     if logfile:
         file_handler = logging.handlers.RotatingFileHandler(
-            logfile, maxBytes=10*1024*1024, backupCount=5
+            logfile, maxBytes=10 * 1024 * 1024, backupCount=5
         )
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
+
 
 class EnigmaC:
     """Handle EnigmaC cipher operations for NetTool (10-digit serial)."""
 
     SOFTWARE_VERSION: str = "3.0.0"
     SERIAL_NUMBER_SIZE_ENIGMAC: int = 10
-    ENIGMA_C_ROTOR: List[int] = [5, 4, 14, 11, 1, 8, 10, 13, 7, 3, 15, 0, 2, 12, 9, 6]
+    ENIGMA_C_ROTOR: list[int] = [5, 4, 14, 11, 1, 8, 10, 13, 7, 3, 15, 0, 2, 12, 9, 6]
 
     def encrypt(self, input_key: str) -> str:
         """Encrypt the input key using EnigmaC cipher.
@@ -92,7 +95,9 @@ class EnigmaC:
             if char not in "0123456789abcdef":
                 raise ValueError("Input contains non-hex characters")
             input_value = int(char, 16)
-            output_value = self.ENIGMA_C_ROTOR[(input_value + index) % len(self.ENIGMA_C_ROTOR)] ^ output_value
+            output_value = (
+                self.ENIGMA_C_ROTOR[(input_value + index) % len(self.ENIGMA_C_ROTOR)] ^ output_value
+            )
             output_key += hex(output_value)[2:]
         return output_key
 
@@ -146,6 +151,7 @@ class EnigmaC:
         opt = int(decrypted_key[10:12], 10)
         return opt == option
 
+
 class Enigma2C:
     """Handle Enigma2C cipher operations for other Fluke products (7-digit serial)."""
 
@@ -153,15 +159,71 @@ class Enigma2C:
     OPTION_CODE_SIZE: int = 3
     SERIAL_NUMBER_SIZE_ENIGMA2: int = 7
     CHECK_SUM_SIZE: int = 2
-    KEY_LENGTH: int = PRODUCT_CODE_SIZE + OPTION_CODE_SIZE + SERIAL_NUMBER_SIZE_ENIGMA2 + CHECK_SUM_SIZE
+    KEY_LENGTH: int = (
+        PRODUCT_CODE_SIZE + OPTION_CODE_SIZE + SERIAL_NUMBER_SIZE_ENIGMA2 + CHECK_SUM_SIZE
+    )
     SERIAL_LOCATION: int = CHECK_SUM_SIZE + PRODUCT_CODE_SIZE
     PRODUCT_LOCATION: int = CHECK_SUM_SIZE
     OPTION_LOCATION: int = CHECK_SUM_SIZE + PRODUCT_CODE_SIZE + SERIAL_NUMBER_SIZE_ENIGMA2
     MAX_CHECK_SUM: int = 26000
-    ENIGMA2_E_ROTOR_10: List[int] = [5, 4, 1, 8, 7, 3, 0, 2, 9, 6]
-    ENIGMA2_E_ROTOR_26: List[int] = [16, 8, 25, 5, 23, 21, 18, 17, 2, 1, 7, 24, 15, 11, 9, 6, 3, 0, 19, 12, 22, 14, 10, 4, 20, 13]
-    ENIGMA2_D_ROTOR_10: List[int] = [6, 2, 7, 5, 1, 0, 9, 4, 3, 8]
-    ENIGMA2_D_ROTOR_26: List[int] = [17, 9, 8, 16, 23, 3, 15, 10, 1, 14, 22, 13, 19, 25, 21, 12, 0, 7, 6, 18, 24, 5, 20, 4, 11, 2]
+    ENIGMA2_E_ROTOR_10: list[int] = [5, 4, 1, 8, 7, 3, 0, 2, 9, 6]
+    ENIGMA2_E_ROTOR_26: list[int] = [
+        16,
+        8,
+        25,
+        5,
+        23,
+        21,
+        18,
+        17,
+        2,
+        1,
+        7,
+        24,
+        15,
+        11,
+        9,
+        6,
+        3,
+        0,
+        19,
+        12,
+        22,
+        14,
+        10,
+        4,
+        20,
+        13,
+    ]
+    ENIGMA2_D_ROTOR_10: list[int] = [6, 2, 7, 5, 1, 0, 9, 4, 3, 8]
+    ENIGMA2_D_ROTOR_26: list[int] = [
+        17,
+        9,
+        8,
+        16,
+        23,
+        3,
+        15,
+        10,
+        1,
+        14,
+        22,
+        13,
+        19,
+        25,
+        21,
+        12,
+        0,
+        7,
+        6,
+        18,
+        24,
+        5,
+        20,
+        4,
+        11,
+        2,
+    ]
 
     def encrypt(self, input_key: str) -> str:
         """Encrypt the input key using Enigma2C cipher.
@@ -187,11 +249,18 @@ class Enigma2C:
         output_key[1] = str((checksum // 10) % 10)
         running_sum = 0
         for i in range(len(output_key)):
-            temp_sum = int(output_key[i]) if output_key[i].isdigit() else ord(output_key[i]) - ord("A")
+            temp_sum = (
+                int(output_key[i]) if output_key[i].isdigit() else ord(output_key[i]) - ord("A")
+            )
             if output_key[i].isdigit():
-                output_key[i] = str(self.ENIGMA2_E_ROTOR_10[(temp_sum + self.MAX_CHECK_SUM - running_sum) % 10])
+                output_key[i] = str(
+                    self.ENIGMA2_E_ROTOR_10[(temp_sum + self.MAX_CHECK_SUM - running_sum) % 10]
+                )
             else:
-                output_key[i] = chr(ord("A") + self.ENIGMA2_E_ROTOR_26[(temp_sum + self.MAX_CHECK_SUM - running_sum) % 26])
+                output_key[i] = chr(
+                    ord("A")
+                    + self.ENIGMA2_E_ROTOR_26[(temp_sum + self.MAX_CHECK_SUM - running_sum) % 26]
+                )
             running_sum += i + temp_sum + (i * temp_sum)
         return "".join(output_key)
 
@@ -240,13 +309,16 @@ class Enigma2C:
         decrypted_key = self.decrypt(key)
         if not decrypted_key:
             return False
-        opt = int(decrypted_key[self.OPTION_LOCATION: self.OPTION_LOCATION + self.OPTION_CODE_SIZE])
+        opt = int(
+            decrypted_key[self.OPTION_LOCATION : self.OPTION_LOCATION + self.OPTION_CODE_SIZE]
+        )
         return opt == option
+
 
 class EnigmaMenu:
     """Handle menu interactions for Fluke option key calculator."""
 
-    PRODUCT_TABLE: List[Dict[str, str]] = [
+    PRODUCT_TABLE: list[dict[str, str]] = [
         {"code": "3001", "abbr": "NTs2", "name": "NetTool Series II"},
         {"code": "7001", "abbr": "LRPro", "name": "LinkRunner Pro Duo"},
         {"code": "6963", "abbr": "Escope/MSv2", "name": "EtherScope/MetroScope"},
@@ -256,7 +328,7 @@ class EnigmaMenu:
         {"code": "1895", "abbr": "iClearSight", "name": "iClearSight Analyzer"},
     ]
 
-    PRODUCT_OPTIONS: Dict[str, Dict[str, str]] = {
+    PRODUCT_OPTIONS: dict[str, dict[str, str]] = {
         "6964": {
             "000": "Registered",
             "001": "Wired (Was Copper)",
@@ -325,7 +397,7 @@ class EnigmaMenu:
             except ValueError:
                 logger.warning("Invalid input, please enter a number.")
 
-    def product_code_menu(self) -> Tuple[str, str]:
+    def product_code_menu(self) -> tuple[str, str]:
         """Display product menu and get codes.
 
         Returns:
@@ -407,12 +479,20 @@ class EnigmaMenu:
         """
         if not serial_number:
             while len(serial_number) != self.enigma_c.SERIAL_NUMBER_SIZE_ENIGMAC:
-                serial_number = input("Enter Serial Number (10 digits): ").strip()[:self.enigma_c.SERIAL_NUMBER_SIZE_ENIGMAC]
-                if len(serial_number) == self.enigma_c.SERIAL_NUMBER_SIZE_ENIGMAC and serial_number.isdigit():
+                serial_number = input("Enter Serial Number (10 digits): ").strip()[
+                    : self.enigma_c.SERIAL_NUMBER_SIZE_ENIGMAC
+                ]
+                if (
+                    len(serial_number) == self.enigma_c.SERIAL_NUMBER_SIZE_ENIGMAC
+                    and serial_number.isdigit()
+                ):
                     break
                 logger.warning("Serial number must be 10 digits.")
 
-        if len(serial_number) != self.enigma_c.SERIAL_NUMBER_SIZE_ENIGMAC or not serial_number.isdigit():
+        if (
+            len(serial_number) != self.enigma_c.SERIAL_NUMBER_SIZE_ENIGMAC
+            or not serial_number.isdigit()
+        ):
             raise ValueError("Serial number must be 10 digits")
 
         if option_number < 0:
@@ -442,8 +522,13 @@ class EnigmaMenu:
         """
         if not serial_number:
             while len(serial_number) != self.enigma_c.SERIAL_NUMBER_SIZE_ENIGMAC:
-                serial_number = input("Enter Serial Number (10 digits): ").strip()[:self.enigma_c.SERIAL_NUMBER_SIZE_ENIGMAC]
-                if len(serial_number) == self.enigma_c.SERIAL_NUMBER_SIZE_ENIGMAC and serial_number.isdigit():
+                serial_number = input("Enter Serial Number (10 digits): ").strip()[
+                    : self.enigma_c.SERIAL_NUMBER_SIZE_ENIGMAC
+                ]
+                if (
+                    len(serial_number) == self.enigma_c.SERIAL_NUMBER_SIZE_ENIGMAC
+                    and serial_number.isdigit()
+                ):
                     break
                 logger.warning("Serial number must be 10 digits.")
 
@@ -469,7 +554,9 @@ class EnigmaMenu:
         result = self.enigma_c.check_option_key(option_number, option_key, serial_number)
         logger.info(f"Option {'valid' if result else 'invalid'}")
 
-    def calculate_enigma2_option_key(self, serial_number: str, option_number: int, product_code: int, assume_escope: bool) -> None:
+    def calculate_enigma2_option_key(
+        self, serial_number: str, option_number: int, product_code: int, assume_escope: bool
+    ) -> None:
         """Calculate Enigma2 option key.
 
         Args:
@@ -486,12 +573,20 @@ class EnigmaMenu:
 
         if not serial_number:
             while len(serial_number) != self.enigma2_c.SERIAL_NUMBER_SIZE_ENIGMA2:
-                serial_number = input("Enter Serial Number (7 digits): ").strip()[:self.enigma2_c.SERIAL_NUMBER_SIZE_ENIGMA2]
-                if len(serial_number) == self.enigma2_c.SERIAL_NUMBER_SIZE_ENIGMA2 and serial_number.isdigit():
+                serial_number = input("Enter Serial Number (7 digits): ").strip()[
+                    : self.enigma2_c.SERIAL_NUMBER_SIZE_ENIGMA2
+                ]
+                if (
+                    len(serial_number) == self.enigma2_c.SERIAL_NUMBER_SIZE_ENIGMA2
+                    and serial_number.isdigit()
+                ):
                     break
                 logger.warning("Serial number must be 7 digits.")
 
-        if len(serial_number) != self.enigma2_c.SERIAL_NUMBER_SIZE_ENIGMA2 or not serial_number.isdigit():
+        if (
+            len(serial_number) != self.enigma2_c.SERIAL_NUMBER_SIZE_ENIGMA2
+            or not serial_number.isdigit()
+        ):
             raise ValueError("Serial number must be 7 digits")
 
         logger.debug(f"SerialNum= {serial_number}")
@@ -532,7 +627,10 @@ class EnigmaMenu:
         if not decrypted_key:
             raise ValueError("Decryption failed: invalid checksum")
 
-        product_code = decrypted_key[self.enigma2_c.PRODUCT_LOCATION: self.enigma2_c.PRODUCT_LOCATION + self.enigma2_c.PRODUCT_CODE_SIZE]
+        product_code = decrypted_key[
+            self.enigma2_c.PRODUCT_LOCATION : self.enigma2_c.PRODUCT_LOCATION
+            + self.enigma2_c.PRODUCT_CODE_SIZE
+        ]
         logger.info(f"Product Code: {product_code} -> ", end="")
         found = False
         for product in self.PRODUCT_TABLE:
@@ -542,8 +640,12 @@ class EnigmaMenu:
                 break
         if not found:
             logger.info("Unknown")
-        logger.info(f"SerialNumber: {decrypted_key[self.enigma2_c.SERIAL_LOCATION: self.enigma2_c.SERIAL_LOCATION + self.enigma2_c.SERIAL_NUMBER_SIZE_ENIGMA2]}")
-        logger.info(f"OptionNumber: {decrypted_key[self.enigma2_c.OPTION_LOCATION: self.enigma2_c.OPTION_LOCATION + self.enigma2_c.OPTION_CODE_SIZE]}")
+        logger.info(
+            f"SerialNumber: {decrypted_key[self.enigma2_c.SERIAL_LOCATION : self.enigma2_c.SERIAL_LOCATION + self.enigma2_c.SERIAL_NUMBER_SIZE_ENIGMA2]}"
+        )
+        logger.info(
+            f"OptionNumber: {decrypted_key[self.enigma2_c.OPTION_LOCATION : self.enigma2_c.OPTION_LOCATION + self.enigma2_c.OPTION_CODE_SIZE]}"
+        )
 
     def main_menu(self) -> bool:
         """Display main menu and handle choices.
@@ -575,23 +677,40 @@ class EnigmaMenu:
             logger.error(f"Error: {e}")
         return True
 
+
 def main() -> None:
     """Main function to handle command-line or interactive mode."""
     parser = argparse.ArgumentParser(
         description="Fluke option key calculator for NetTool and other products.",
         epilog="Examples:\n"
-               "  python enigma_v300_classes.py -n 0003333016 4 --logfile enigma.log\n"
-               "  python enigma_v300_classes.py -e 0000607 7 6963 --verbose",
-        formatter_class=argparse.RawDescriptionHelpFormatter
+        "  python enigma_v300_classes.py -n 0003333016 4 --logfile enigma.log\n"
+        "  python enigma_v300_classes.py -e 0000607 7 6963 --verbose",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument("-n", "--nettool", nargs=2, metavar=("SERIAL", "OPTION"),
-                        help="Generate NetTool option key (10-digit serial, option number)")
-    parser.add_argument("-x", "--check-nettool", nargs=2, metavar=("KEY", "SERIAL"),
-                        help="Check NetTool option key (12-hex key, 10-digit serial)")
-    parser.add_argument("-e", "--encrypt", nargs=3, metavar=("SERIAL", "OPTION", "PRODUCT"),
-                        help="Generate option key for other products (7-digit serial, option, product code)")
-    parser.add_argument("-d", "--decrypt", metavar="KEY",
-                        help="Decrypt option key for other products (16-char key)")
+    parser.add_argument(
+        "-n",
+        "--nettool",
+        nargs=2,
+        metavar=("SERIAL", "OPTION"),
+        help="Generate NetTool option key (10-digit serial, option number)",
+    )
+    parser.add_argument(
+        "-x",
+        "--check-nettool",
+        nargs=2,
+        metavar=("KEY", "SERIAL"),
+        help="Check NetTool option key (12-hex key, 10-digit serial)",
+    )
+    parser.add_argument(
+        "-e",
+        "--encrypt",
+        nargs=3,
+        metavar=("SERIAL", "OPTION", "PRODUCT"),
+        help="Generate option key for other products (7-digit serial, option, product code)",
+    )
+    parser.add_argument(
+        "-d", "--decrypt", metavar="KEY", help="Decrypt option key for other products (16-char key)"
+    )
     parser.add_argument("--verbose", action="store_true", help="Enable debug logging")
     parser.add_argument("--logfile", help="Log to file (rotates at 10MB)")
 
@@ -620,6 +739,7 @@ def main() -> None:
     except Exception as e:
         logger.error(f"Fatal error: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
