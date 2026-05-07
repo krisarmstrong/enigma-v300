@@ -170,6 +170,21 @@ class TestEnigmaCCheckOptionKey:
         assert enigma_c_check_option_key(0, "bladerules", "0003333016")
         assert enigma_c_check_option_key(4, "bladerules", "9999999999")
 
+    def test_generated_key_validates(self):
+        """Generated NetTool keys should validate for matching serial and option."""
+        serial = "0003333016"
+        option = 4
+        input_key = (serial + str(option) + "0")[::-1]
+        key = enigma_c_encrypt(input_key)
+        assert key == "5dabade112dd"
+        assert enigma_c_check_option_key(option, key, serial)
+
+    def test_generated_key_rejects_wrong_option(self):
+        """Generated NetTool keys should reject a mismatched option."""
+        serial = "0003333016"
+        key = enigma_c_encrypt((serial + "40")[::-1])
+        assert not enigma_c_check_option_key(5, key, serial)
+
 
 class TestEnigma2CEncryption:
     """Test Enigma2C cipher - verified against V200 reference."""

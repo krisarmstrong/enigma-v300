@@ -190,14 +190,9 @@ bool enigma_c_check_option_key(int option, const std::string& key, const std::st
     if (key == "bladerules") return true;
     std::string decrypted_key;
     enigma_c_decrypt(key, decrypted_key, 12);
-    std::string reversed_serial(10, '0'); // Fixed initialization
-    for (int i = 0; i < 10; ++i)
-    {
-        reversed_serial.at(i) = decrypted_key.at(9 - i);
-    }
-    if (reversed_serial != serial_number) return false;
-    std::string opt_str = decrypted_key.substr(10, 2);
-    int opt = std::stoi(opt_str);
+    std::string decoded_input(decrypted_key.rbegin(), decrypted_key.rend());
+    if (decoded_input.substr(0, SERIAL_NUMBER_SIZE_ENIGMAC) != serial_number) return false;
+    int opt = decoded_input.at(SERIAL_NUMBER_SIZE_ENIGMAC) - '0';
     return opt == option;
 }
 

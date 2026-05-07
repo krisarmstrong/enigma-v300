@@ -267,10 +267,10 @@ def enigma_c_check_option_key(option: int, key: str, serial_number: str) -> bool
     if key == "bladerules":
         return True
     decrypted_key = enigma_c_decrypt(key)
-    reversed_serial = decrypted_key[:10][::-1]
-    if reversed_serial != serial_number:
+    decoded_input = decrypted_key[::-1]
+    if decoded_input[:SERIAL_NUMBER_SIZE_ENIGMAC] != serial_number:
         return False
-    opt = int(decrypted_key[10:12], 10)
+    opt = int(decoded_input[SERIAL_NUMBER_SIZE_ENIGMAC], 10)
     return opt == option
 
 

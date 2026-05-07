@@ -145,10 +145,10 @@ class EnigmaC:
         if key == "bladerules":
             return True
         decrypted_key = self.decrypt(key)
-        reversed_serial = decrypted_key[:10][::-1]
-        if reversed_serial != serial_number:
+        decoded_input = decrypted_key[::-1]
+        if decoded_input[: self.SERIAL_NUMBER_SIZE_ENIGMAC] != serial_number:
             return False
-        opt = int(decrypted_key[10:12], 10)
+        opt = int(decoded_input[self.SERIAL_NUMBER_SIZE_ENIGMAC], 10)
         return opt == option
 
 

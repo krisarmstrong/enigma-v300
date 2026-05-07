@@ -276,16 +276,18 @@ int enigma_c_check_option_key(int option, const char* key, const char* serial_nu
     if (is_blade_rules) return 1;
     char decrypted_key[13];
     enigma_c_decrypt(key, decrypted_key, 12);
-    char reversed_serial[11];
-    for (int i = 0; i < 10; ++i)
+    char decoded_input[13];
+    for (int i = 0; i < 12; ++i)
     {
-        reversed_serial[i] = decrypted_key[9 - i];
+        decoded_input[i] = decrypted_key[11 - i];
     }
-    reversed_serial[10] = '\0';
-    int serial_match = strcmp(reversed_serial, serial_number) == 0;
+    decoded_input[12] = '\0';
+    char decoded_serial[11];
+    strncpy(decoded_serial, decoded_input, SERIAL_NUMBER_SIZE_ENIGMAC);
+    decoded_serial[SERIAL_NUMBER_SIZE_ENIGMAC] = '\0';
+    int serial_match = strcmp(decoded_serial, serial_number) == 0;
     if (!serial_match) return 0;
-    char opt_str[3] = {decrypted_key[10], decrypted_key[11], '\0'};
-    int opt = atoi(opt_str);
+    int opt = decoded_input[SERIAL_NUMBER_SIZE_ENIGMAC] - '0';
     return opt == option;
 }
 

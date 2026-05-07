@@ -8,7 +8,7 @@
 set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-BUILD_DIR="${SCRIPT_DIR}/../build"
+BUILD_DIR="${BUILD_DIR:-${SCRIPT_DIR}/../build}"
 ENIGMA="${BUILD_DIR}/enigma_v300_pure_cpp"
 
 # Colors for output
@@ -99,6 +99,15 @@ check_output "Decrypt shows option 007" "007" "$OUTPUT"
 OUTPUT=$("$ENIGMA" -d 8944937150971162 2>&1)
 check_output "Decrypt shows product 7001" "7001" "$OUTPUT"
 check_output "Decrypt shows option 002" "002" "$OUTPUT"
+
+echo ""
+echo "--- NetTool Validation Tests ---"
+
+OUTPUT=$(printf '0003333016\n4\n' | "$ENIGMA" -x 5dabade112dd 2>&1)
+check_output "Generated NetTool opt 4 validates" "Option valid" "$OUTPUT"
+
+OUTPUT=$(printf '0003333016\n5\n' | "$ENIGMA" -x 5dabade112dd 2>&1)
+check_output "Generated NetTool rejects wrong option" "Option invalid" "$OUTPUT"
 
 echo ""
 echo "--- Edge Case Tests ---"
