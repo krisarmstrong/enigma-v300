@@ -607,12 +607,10 @@ def check_enigma2_option_key(option_key: str) -> None:
             product_name = product["name"]
             break
     logger.info(f"Product Code: {product_code} -> {product_name}")
-    logger.info(
-        f"SerialNumber: {decrypted_key[SERIAL_LOCATION : SERIAL_LOCATION + SERIAL_NUMBER_SIZE_ENIGMA2]}"
-    )
-    logger.info(
-        f"OptionNumber: {decrypted_key[OPTION_LOCATION : OPTION_LOCATION + OPTION_CODE_SIZE]}"
-    )
+    serial_end = SERIAL_LOCATION + SERIAL_NUMBER_SIZE_ENIGMA2
+    option_end = OPTION_LOCATION + OPTION_CODE_SIZE
+    logger.info(f"SerialNumber: {decrypted_key[SERIAL_LOCATION:serial_end]}")
+    logger.info(f"OptionNumber: {decrypted_key[OPTION_LOCATION:option_end]}")
 
 
 def main_menu() -> bool:
@@ -648,8 +646,11 @@ def main_menu() -> bool:
 
 def main() -> None:
     """Main function to handle command-line or interactive mode."""
+    description = (
+        "Fluke option key calculator for NetTool and other products (functional implementation)."
+    )
     parser = argparse.ArgumentParser(
-        description="Fluke option key calculator for NetTool and other products (functional implementation).",
+        description=description,
         epilog="Examples:\n"
         "  python enigma_v300_functions.py -n 0003333016 4 --logfile enigma.log\n"
         "  python enigma_v300_functions.py -e 0000607 7 6963 --verbose",
@@ -688,15 +689,9 @@ def main() -> None:
     )
     parser.add_argument("--verbose", action="store_true", help="Enable debug logging")
     parser.add_argument("--logfile", help="Log to file (rotates at 10MB)")
-    parser.add_argument(
-        "-V", "--version", action="store_true", help="Show version information"
-    )
-    parser.add_argument(
-        "--list-products", action="store_true", help="List known product codes"
-    )
-    parser.add_argument(
-        "--list-options", metavar="CODE", help="List options for a product code"
-    )
+    parser.add_argument("-V", "--version", action="store_true", help="Show version information")
+    parser.add_argument("--list-products", action="store_true", help="List known product codes")
+    parser.add_argument("--list-options", metavar="CODE", help="List options for a product code")
 
     args = parser.parse_args()
     setup_logging(args.verbose, args.logfile)

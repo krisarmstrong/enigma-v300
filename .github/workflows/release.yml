@@ -13,17 +13,46 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.0.0
         with:
           python-version: "3.14"
 
-      - name: Build package
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake g++-10
+
+      - name: Build Python package
         run: |
           python -m pip install --upgrade pip build
           python -m build
+
+      - name: Build C and C++ release binaries
+        run: |
+          set -euo pipefail
+
+          cmake -S c -B c/build -DCMAKE_BUILD_TYPE=Release
+          cmake --build c/build --config Release
+          ctest --test-dir c/build --output-on-failure
+
+          cmake -S cpp -B cpp/build -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++-10
+          cmake --build cpp/build --config Release
+
+      - name: Package compiled artifacts
+        run: |
+          set -euo pipefail
+          mkdir -p dist/native
+          cp c/build/enigma_v300_pure_c dist/native/
+          cp cpp/build/enigma_v300_pure_cpp dist/native/
+          tar -czf "dist/enigma-v300-c-linux-amd64-${GITHUB_REF_NAME}.tar.gz" -C dist/native enigma_v300_pure_c
+          tar -czf "dist/enigma-v300-cpp-linux-amd64-${GITHUB_REF_NAME}.tar.gz" -C dist/native enigma_v300_pure_cpp
+          (
+            cd dist
+            sha256sum *.tar.gz *.whl 2>/dev/null | sort -k 2 > SHA256SUMS.txt
+          )
 
       - name: Extract release notes from CHANGELOG
         run: |
@@ -38,8 +67,16 @@ jobs:
           cat release_notes.md
 
       - name: Create Release
-        uses: softprops/action-gh-release@v2
-        with:
-          name: ${{ github.event.repository.name }} ${{ github.ref_name }}
-          body_path: release_notes.md
-          files: dist/*
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="${{ github.ref_name }}"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" dist/* --clobber
+          else
+            gh release create "$tag" dist/* \
+              --title "${{ github.event.repository.name }} $tag" \
+              --notes-file release_notes.md \
+              --verify-tag
+          fi
