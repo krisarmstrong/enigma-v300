@@ -1,0 +1,12 @@
+---
+# clang-format configuration for C++23 (NOT C)
+Language: Cpp
+BasedOnStyle: LLVM
+Standard: Latest
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ColumnLimit: 100
+PointerAlignment: Left
+SortIncludes: CaseSensitive
+InsertNewlineAtEOF: true

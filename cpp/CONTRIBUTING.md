@@ -26,7 +26,7 @@ Before submitting:
 
 ```bash
 # Compile with warnings
-g++ -std=c++20 -Wall -Wextra enigma_v300_pure_cpp.cpp -o enigma
+g++ -std=c++23 -Wall -Wextra enigma_v300_pure_cpp.cpp -o enigma
 
 # Run test cases
 ./enigma -n 0003333016 4        # Expected: 5dab ade1 12dd
