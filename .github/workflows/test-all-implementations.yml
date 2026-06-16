@@ -13,17 +13,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.14"
       - name: Test NetTool key generation
         run: |
-          cd python_functions
+          cd python
           python3 enigma_v300_functions.py -n 0003333016 4 > output.txt 2>&1
           grep -q "5dab ade1 12dd" output.txt
       - name: Test EtherScope key generation
         run: |
-          cd python_functions
+          cd python
           python3 enigma_v300_functions.py -e 0000607 7 6963 > output.txt 2>&1
           grep -q "6406 2579 4859 7747" output.txt
 
@@ -32,17 +32,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.14"
       - name: Test NetTool key generation
         run: |
-          cd python_classes
+          cd python
           python3 enigma_v300_classes.py -n 0003333016 4 > output.txt 2>&1
           grep -q "5dab ade1 12dd" output.txt
       - name: Test EtherScope key generation
         run: |
-          cd python_classes
+          cd python
           python3 enigma_v300_classes.py -e 0000607 7 6963 > output.txt 2>&1
           grep -q "6406 2579 4859 7747" output.txt
 
@@ -57,22 +57,22 @@ jobs:
           sudo apt-get install -y cmake build-essential
       - name: Build C implementation
         run: |
-          cd c_implementation
+          cd c
           cmake -S . -B build
           cmake --build build
       - name: Test NetTool key generation
         run: |
-          cd c_implementation
+          cd c
           ./build/enigma_v300_pure_c -n 0003333016 4 > output.txt 2>&1
           grep -q "5dab ade1 12dd" output.txt
       - name: Test EtherScope key generation
         run: |
-          cd c_implementation
+          cd c
           ./build/enigma_v300_pure_c -e 0000607 7 6963 > output.txt 2>&1
           grep -q "6406 2579 4859 7747" output.txt
       - name: Run C tests
         run: |
-          cd c_implementation
+          cd c
           ctest --test-dir build --output-on-failure
 
   test-cpp-implementation:
@@ -86,17 +86,17 @@ jobs:
           sudo apt-get install -y cmake build-essential g++-10
       - name: Build C++ implementation
         run: |
-          cd cpp_implementation
+          cd cpp
           cmake -S . -B build -DCMAKE_CXX_COMPILER=g++-10
           cmake --build build
       - name: Test NetTool key generation
         run: |
-          cd cpp_implementation
+          cd cpp
           ./build/enigma_v300_pure_cpp -n 0003333016 4 > output.txt 2>&1
           grep -q "5dab ade1 12dd" output.txt
       - name: Test EtherScope key generation
         run: |
-          cd cpp_implementation
+          cd cpp
           ./build/enigma_v300_pure_cpp -e 0000607 7 6963 > output.txt 2>&1
           grep -q "6406 2579 4859 7747" output.txt
 
@@ -106,7 +106,7 @@ jobs:
     needs: [test-python-functions, test-python-classes, test-c-implementation, test-cpp-implementation]
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.14"
       - name: Install build tools
@@ -115,30 +115,30 @@ jobs:
           sudo apt-get install -y cmake build-essential g++-10
       - name: Build all implementations
         run: |
-          cd c_implementation && cmake -S . -B build && cmake --build build && cd ..
-          cd cpp_implementation && cmake -S . -B build -DCMAKE_CXX_COMPILER=g++-10 && cmake --build build && cd ..
+          cd c && cmake -S . -B build && cmake --build build && cd ..
+          cd cpp && cmake -S . -B build -DCMAKE_CXX_COMPILER=g++-10 && cmake --build build && cd ..
       - name: Generate keys from all implementations
         run: |
           # Python Functions
-          cd python_functions
+          cd python
           python3 enigma_v300_functions.py -n 0003333016 4 2>&1 | grep "Option Key" > ../pyfunc_nettool.txt
           python3 enigma_v300_functions.py -e 0000607 7 6963 2>&1 | grep "Option Key" > ../pyfunc_escope.txt
           cd ..
 
           # Python Classes
-          cd python_classes
+          cd python
           python3 enigma_v300_classes.py -n 0003333016 4 2>&1 | grep "Option Key" > ../pyclass_nettool.txt
           python3 enigma_v300_classes.py -e 0000607 7 6963 2>&1 | grep "Option Key" > ../pyclass_escope.txt
           cd ..
 
           # C
-          cd c_implementation
+          cd c
           ./build/enigma_v300_pure_c -n 0003333016 4 2>&1 | grep "Option Key" > ../c_nettool.txt
           ./build/enigma_v300_pure_c -e 0000607 7 6963 2>&1 | grep "Option Key" > ../c_escope.txt
           cd ..
 
           # C++
-          cd cpp_implementation
+          cd cpp
           ./build/enigma_v300_pure_cpp -n 0003333016 4 2>&1 | grep "Option Key" > ../cpp_nettool.txt
           ./build/enigma_v300_pure_cpp -e 0000607 7 6963 2>&1 | grep "Option Key" > ../cpp_escope.txt
           cd ..
