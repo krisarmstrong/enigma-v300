@@ -17,6 +17,7 @@ import sys
 from importlib.metadata import PackageNotFoundError
 from importlib.metadata import version as _pkg_version
 from pathlib import Path
+from typing import ClassVar
 
 
 def _find_pyproject(start: Path) -> Path | None:
@@ -75,7 +76,24 @@ class EnigmaC:
 
     SOFTWARE_VERSION: str = "3.0.0"
     SERIAL_NUMBER_SIZE_ENIGMAC: int = 10
-    ENIGMA_C_ROTOR: list[int] = [5, 4, 14, 11, 1, 8, 10, 13, 7, 3, 15, 0, 2, 12, 9, 6]
+    ENIGMA_C_ROTOR: ClassVar[list[int]] = [
+        5,
+        4,
+        14,
+        11,
+        1,
+        8,
+        10,
+        13,
+        7,
+        3,
+        15,
+        0,
+        2,
+        12,
+        9,
+        6,
+    ]
 
     def encrypt(self, input_key: str) -> str:
         """Encrypt the input key using EnigmaC cipher.
@@ -166,8 +184,8 @@ class Enigma2C:
     PRODUCT_LOCATION: int = CHECK_SUM_SIZE
     OPTION_LOCATION: int = CHECK_SUM_SIZE + PRODUCT_CODE_SIZE + SERIAL_NUMBER_SIZE_ENIGMA2
     MAX_CHECK_SUM: int = 26000
-    ENIGMA2_E_ROTOR_10: list[int] = [5, 4, 1, 8, 7, 3, 0, 2, 9, 6]
-    ENIGMA2_E_ROTOR_26: list[int] = [
+    ENIGMA2_E_ROTOR_10: ClassVar[list[int]] = [5, 4, 1, 8, 7, 3, 0, 2, 9, 6]
+    ENIGMA2_E_ROTOR_26: ClassVar[list[int]] = [
         16,
         8,
         25,
@@ -195,8 +213,8 @@ class Enigma2C:
         20,
         13,
     ]
-    ENIGMA2_D_ROTOR_10: list[int] = [6, 2, 7, 5, 1, 0, 9, 4, 3, 8]
-    ENIGMA2_D_ROTOR_26: list[int] = [
+    ENIGMA2_D_ROTOR_10: ClassVar[list[int]] = [6, 2, 7, 5, 1, 0, 9, 4, 3, 8]
+    ENIGMA2_D_ROTOR_26: ClassVar[list[int]] = [
         17,
         9,
         8,
@@ -320,7 +338,7 @@ class EnigmaMenu:
 
     SOFTWARE_VERSION: str = "3.0.0"
 
-    PRODUCT_TABLE: list[dict[str, str]] = [
+    PRODUCT_TABLE: ClassVar[list[dict[str, str]]] = [
         {"code": "3001", "abbr": "NTs2", "name": "NetTool Series II"},
         {"code": "7001", "abbr": "LRPro", "name": "LinkRunner Pro Duo"},
         {"code": "6963", "abbr": "Escope/MSv2", "name": "EtherScope/MetroScope"},
@@ -330,7 +348,7 @@ class EnigmaMenu:
         {"code": "1895", "abbr": "iClearSight", "name": "iClearSight Analyzer"},
     ]
 
-    PRODUCT_OPTIONS: dict[str, dict[str, str]] = {
+    PRODUCT_OPTIONS: ClassVar[dict[str, dict[str, str]]] = {
         "6964": {
             "000": "Registered",
             "001": "Wired (Was Copper)",
@@ -639,12 +657,12 @@ class EnigmaMenu:
                 product_name = product["name"]
                 break
         logger.info(f"Product Code: {product_code} -> {product_name}")
-        logger.info(
-            f"SerialNumber: {decrypted_key[self.enigma2_c.SERIAL_LOCATION : self.enigma2_c.SERIAL_LOCATION + self.enigma2_c.SERIAL_NUMBER_SIZE_ENIGMA2]}"
-        )
-        logger.info(
-            f"OptionNumber: {decrypted_key[self.enigma2_c.OPTION_LOCATION : self.enigma2_c.OPTION_LOCATION + self.enigma2_c.OPTION_CODE_SIZE]}"
-        )
+        serial_start = self.enigma2_c.SERIAL_LOCATION
+        serial_end = serial_start + self.enigma2_c.SERIAL_NUMBER_SIZE_ENIGMA2
+        option_start = self.enigma2_c.OPTION_LOCATION
+        option_end = option_start + self.enigma2_c.OPTION_CODE_SIZE
+        logger.info(f"SerialNumber: {decrypted_key[serial_start:serial_end]}")
+        logger.info(f"OptionNumber: {decrypted_key[option_start:option_end]}")
 
     def main_menu(self) -> bool:
         """Display main menu and handle choices.
@@ -719,15 +737,9 @@ def main() -> None:
     )
     parser.add_argument("--verbose", action="store_true", help="Enable debug logging")
     parser.add_argument("--logfile", help="Log to file (rotates at 10MB)")
-    parser.add_argument(
-        "-V", "--version", action="store_true", help="Show version information"
-    )
-    parser.add_argument(
-        "--list-products", action="store_true", help="List known product codes"
-    )
-    parser.add_argument(
-        "--list-options", metavar="CODE", help="List options for a product code"
-    )
+    parser.add_argument("-V", "--version", action="store_true", help="Show version information")
+    parser.add_argument("--list-products", action="store_true", help="List known product codes")
+    parser.add_argument("--list-options", metavar="CODE", help="List options for a product code")
 
     args = parser.parse_args()
     setup_logging(args.verbose, args.logfile)

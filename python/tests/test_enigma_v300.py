@@ -3,6 +3,7 @@
 
 import sys
 from pathlib import Path
+from typing import ClassVar
 
 import pytest
 
@@ -10,27 +11,27 @@ import pytest
 sys.path.insert(0, str(Path(__file__).parent.parent / "python"))
 
 from enigma_v300_functions import (
-    SOFTWARE_VERSION,
-    PRODUCT_TABLE,
-    PRODUCT_OPTIONS,
-    PRODUCT_CODE_SIZE,
-    OPTION_CODE_SIZE,
-    SERIAL_NUMBER_SIZE_ENIGMA2,
-    SERIAL_NUMBER_SIZE_ENIGMAC,
     CHECK_SUM_SIZE,
-    KEY_LENGTH,
-    ENIGMA_C_ROTOR,
-    ENIGMA2_E_ROTOR_10,
-    ENIGMA2_E_ROTOR_26,
     ENIGMA2_D_ROTOR_10,
     ENIGMA2_D_ROTOR_26,
-    enigma_c_encrypt,
-    enigma_c_decrypt,
-    enigma_c_check_option_key,
-    enigma2_c_encrypt,
-    enigma2_c_decrypt,
-    enigma2_c_check_option_key,
+    ENIGMA2_E_ROTOR_10,
+    ENIGMA2_E_ROTOR_26,
+    ENIGMA_C_ROTOR,
+    KEY_LENGTH,
+    OPTION_CODE_SIZE,
+    PRODUCT_CODE_SIZE,
+    PRODUCT_OPTIONS,
+    PRODUCT_TABLE,
+    SERIAL_NUMBER_SIZE_ENIGMA2,
+    SERIAL_NUMBER_SIZE_ENIGMAC,
+    SOFTWARE_VERSION,
     __version__,
+    enigma2_c_check_option_key,
+    enigma2_c_decrypt,
+    enigma2_c_encrypt,
+    enigma_c_check_option_key,
+    enigma_c_decrypt,
+    enigma_c_encrypt,
 )
 
 
@@ -116,7 +117,7 @@ class TestProductOptions:
 
     def test_option_codes_are_valid(self):
         """Option codes should be 3-digit strings."""
-        for product_code, options in PRODUCT_OPTIONS.items():
+        for _product_code, options in PRODUCT_OPTIONS.items():
             for option_code in options.keys():
                 assert len(option_code) == 3, f"Invalid option code {option_code}"
                 assert option_code.isdigit(), f"Option code {option_code} not numeric"
@@ -190,7 +191,7 @@ class TestEnigma2CEncryption:
     """Test Enigma2C cipher - verified against V200 reference."""
 
     # Reference test vectors from enigma V200
-    TEST_VECTORS = [
+    TEST_VECTORS: ClassVar[list[tuple[str, int, str, str]]] = [
         # (serial, option, product, expected_key)
         ("1234567", 7, "6963", "9225940719507747"),  # EtherScope opt 7
         ("1234567", 2, "7001", "8944937150971162"),  # LinkRunner Pro opt 2
@@ -223,7 +224,7 @@ class TestEnigma2CEncryption:
 class TestEnigma2CDecryption:
     """Test Enigma2C decryption - verified against V200 reference."""
 
-    DECRYPT_VECTORS = [
+    DECRYPT_VECTORS: ClassVar[list[tuple[str, str, str, str]]] = [
         # (encrypted_key, expected_product, expected_serial, expected_option)
         ("9225940719507747", "6963", "1234567", "007"),
         ("8944937150971162", "7001", "1234567", "002"),
