@@ -53,7 +53,7 @@ This project adheres to a code of professional conduct. By participating, you ar
 
 **Using g++:**
 ```bash
-g++ -std=c++20 enigma_v300_pure_cpp.cpp -o enigma
+g++ -std=c++23 enigma_v300_pure_cpp.cpp -o enigma
 ```
 
 **Using CMake:**
@@ -66,7 +66,7 @@ make
 
 **Using clang++:**
 ```bash
-clang++ -std=c++20 enigma_v300_pure_cpp.cpp -o enigma
+clang++ -std=c++23 enigma_v300_pure_cpp.cpp -o enigma
 ```
 
 ### Testing Your Build
@@ -176,7 +176,7 @@ Test all modifications thoroughly:
 
 1. **Compilation test**: Ensure code compiles cleanly
    ```bash
-   g++ -std=c++20 -Wall -Wextra enigma_v300_pure_cpp.cpp -o enigma
+   g++ -std=c++23 -Wall -Wextra enigma_v300_pure_cpp.cpp -o enigma
    ```
 
 2. **Functional tests**: Run known test cases

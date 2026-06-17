@@ -657,12 +657,16 @@ class EnigmaMenu:
                 product_name = product["name"]
                 break
         logger.info(f"Product Code: {product_code} -> {product_name}")
-        serial_start = self.enigma2_c.SERIAL_LOCATION
-        serial_end = serial_start + self.enigma2_c.SERIAL_NUMBER_SIZE_ENIGMA2
-        option_start = self.enigma2_c.OPTION_LOCATION
-        option_end = option_start + self.enigma2_c.OPTION_CODE_SIZE
-        logger.info(f"SerialNumber: {decrypted_key[serial_start:serial_end]}")
-        logger.info(f"OptionNumber: {decrypted_key[option_start:option_end]}")
+        serial_number = decrypted_key[
+            self.enigma2_c.SERIAL_LOCATION : self.enigma2_c.SERIAL_LOCATION
+            + self.enigma2_c.SERIAL_NUMBER_SIZE_ENIGMA2
+        ]
+        option_number = decrypted_key[
+            self.enigma2_c.OPTION_LOCATION : self.enigma2_c.OPTION_LOCATION
+            + self.enigma2_c.OPTION_CODE_SIZE
+        ]
+        logger.info(f"SerialNumber: {serial_number}")
+        logger.info(f"OptionNumber: {option_number}")
 
     def main_menu(self) -> bool:
         """Display main menu and handle choices.

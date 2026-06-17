@@ -100,7 +100,7 @@ cmake --build build
 **Quick compile:**
 ```bash
 cd c
-gcc -std=c11 src/main.c src/enigma_v300_pure_c.c -o enigma
+gcc -std=c23 src/main.c src/enigma_v300_pure_c.c -o enigma
 ./enigma -n 0003333016 4
 ```
 
@@ -127,7 +127,7 @@ cmake --build build
 **Quick compile:**
 ```bash
 cd cpp
-g++ -std=c++20 src/enigma_v300_pure_cpp.cpp -o enigma
+g++ -std=c++23 src/enigma_v300_pure_cpp.cpp -o enigma
 ./enigma -n 0003333016 4
 ```
 

@@ -31,7 +31,7 @@ cmake --build build
 
 Or compile directly:
 ```bash
-g++ -std=c++20 src/enigma_v300_pure_cpp.cpp -o enigma
+g++ -std=c++23 src/enigma_v300_pure_cpp.cpp -o enigma
 ```
 
 ## Usage

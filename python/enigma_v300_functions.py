@@ -607,10 +607,10 @@ def check_enigma2_option_key(option_key: str) -> None:
             product_name = product["name"]
             break
     logger.info(f"Product Code: {product_code} -> {product_name}")
-    serial_end = SERIAL_LOCATION + SERIAL_NUMBER_SIZE_ENIGMA2
-    option_end = OPTION_LOCATION + OPTION_CODE_SIZE
-    logger.info(f"SerialNumber: {decrypted_key[SERIAL_LOCATION:serial_end]}")
-    logger.info(f"OptionNumber: {decrypted_key[OPTION_LOCATION:option_end]}")
+    serial_number = decrypted_key[SERIAL_LOCATION : SERIAL_LOCATION + SERIAL_NUMBER_SIZE_ENIGMA2]
+    option_number = decrypted_key[OPTION_LOCATION : OPTION_LOCATION + OPTION_CODE_SIZE]
+    logger.info(f"SerialNumber: {serial_number}")
+    logger.info(f"OptionNumber: {option_number}")
 
 
 def main_menu() -> bool:
@@ -646,11 +646,11 @@ def main_menu() -> bool:
 
 def main() -> None:
     """Main function to handle command-line or interactive mode."""
-    description = (
-        "Fluke option key calculator for NetTool and other products (functional implementation)."
-    )
     parser = argparse.ArgumentParser(
-        description=description,
+        description=(
+            "Fluke option key calculator for NetTool and other products "
+            "(functional implementation)."
+        ),
         epilog="Examples:\n"
         "  python enigma_v300_functions.py -n 0003333016 4 --logfile enigma.log\n"
         "  python enigma_v300_functions.py -e 0000607 7 6963 --verbose",

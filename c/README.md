@@ -31,7 +31,7 @@ cmake --build build
 
 Or compile directly:
 ```bash
-gcc -std=c11 src/main.c src/enigma_v300_pure_c.c -o enigma
+gcc -std=c23 src/main.c src/enigma_v300_pure_c.c -o enigma
 ```
 
 ## Usage
