@@ -25,7 +25,7 @@ py-modules = ["enigma_v300_classes", "enigma_v300_functions"]
 dev = [
   "pytest==9.1.0",
   "pytest-cov==7.1.0",
-  "ruff==0.15.17",
+  "ruff==0.15.22",
 ]
 
 [tool.pytest.ini_options]
